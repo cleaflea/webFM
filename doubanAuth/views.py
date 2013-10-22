@@ -13,6 +13,7 @@ import os
 from cookielib import CookieJar
 from django.views.decorators.csrf import csrf_exempt
 import time
+import pickle
 
 #globals()
 
@@ -72,10 +73,11 @@ def login_user(request):
             print jsonResponse['err_msg']
         else:
             print 'login successful!!!'
-            global PLAYLIST
-            global FINALOPENER
-            PLAYLIST = doubanUtil.play(channel=-3, opener=opener)
-            FINALOPENER = opener
+            playlist = doubanUtil.play(channel=-3, opener=opener)
+            picklePath = os.path.join(os.path.dirname(__file__), '..', 'picklefile').replace('\\', '/')
+            with open(str(picklePath) + '/playlist.pickle', 'wb') as listSaveData:
+                pickle.dump(playlist, listSaveData)
+
 
         #time.sleep(300)
 
@@ -95,9 +97,13 @@ def login_user(request):
 
 
 def test(request):
-    print type(PLAYLIST)
-    print PLAYLIST
-    songlist = json.dumps(PLAYLIST)
+    picklePath = os.path.join(os.path.dirname(__file__), '..', 'picklefile').replace('\\', '/')
+    with open(str(picklePath) + '/playlist.pickle', 'rb') as listSaveData:
+        playlist = pickle.load(listSaveData)
+
+    print type(playlist)
+    print playlist
+    songlist = json.dumps(playlist)
     print type(songlist)
     print songlist
     #return HttpResponse('hello cleantha')
