@@ -95,6 +95,29 @@ def login_user(request):
 
 #def playmusic(request):
 
+def nocaptcha_login_user(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '')
+        password = request.POST.get('password', '')
+
+        print 'username=>' + str(email)
+        print 'password=>' + str(password)
+
+        playlist = doubanUtil.getcaptcha8(email=email, password=password)
+        picklePath = os.path.join(os.path.dirname(__file__), '..', 'picklefile').replace('\\', '/')
+        with open(str(picklePath) + '/playlist.pickle', 'wb') as listSaveData:
+            pickle.dump(playlist, listSaveData)
+
+
+        #time.sleep(300)
+
+        return HttpResponseRedirect('/douban/index/')
+        #return HttpResponseRedirect('/auth/test/')
+
+    else:
+        return render_to_response('nocaptcha_login.html', {}, context_instance=RequestContext(request))
+
+
 
 def test(request):
     picklePath = os.path.join(os.path.dirname(__file__), '..', 'picklefile').replace('\\', '/')

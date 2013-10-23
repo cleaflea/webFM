@@ -22,14 +22,34 @@ def getcaptchaimg(opener, captchaid):
     captchafile.close()
 
 
+class HttpRedirect_Handler(urllib2.HTTPRedirectHandler):
+    def http_error_302(self, req, fp, code, msg, headers):
+        super.http_error_302(fp, code, msg, headers)
+        print 'req===>' + str(req)
+        print 'headers===>' + str(headers)
+
+
 def initopener():
     header = (
         'User-Agent',
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.76 Safari/537.36'
     )
+    host = ('Host',
+             'douban.fm'
+    )
+    refer = ('Referer',
+             'http://douban.fm/'
+    )
+    connect = ('Connection',
+               'keep-alive'
+    )
+
+    #proxy_support = urllib2.ProxyHandler({'http': 'http://127.0.0.1:8087'})
     privatecookiejar = CookieJar()
+    httphandler = urllib2.HTTPHandler(debuglevel=1)
+    #opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(privatecookiejar), httphandler)
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(privatecookiejar))
-    opener.addheaders = [header]
+    opener.addheaders = [header, host, refer, connect]
     return opener
 
 
@@ -101,5 +121,56 @@ def play(channel='0', opener=None):
         #player = subprocess.Popen(['/Applications/MPlayerX.app/Contents/MacOS/MPlayerX', playlist['song'][0]['url']])
         #time.sleep(playlist['song'][0]['length'])
         #player.kill()
+
+import requests
+
+def getcaptcha8(email, password):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN) AppleWebKit/533.3 (KHTML, like Gecko) radio Safari/533.3'
+    }
+
+    params = {
+        'email': email,
+        'password': password,
+        'app_name': 'radio_desktop_win',
+        'version': '100'
+    }
+
+    r = requests.post('http://www.douban.com/j/app/login', data=params, headers=headers)
+    # print dict(r.text)
+    # print type(r.text)
+    result = json.loads(r.text)
+    print type(result)
+    user_id = result['user_id']
+    expire = result['expire']
+    token = result['token']
+    print user_id
+    print expire
+    print token
+    channel = '-3'
+
+    url = 'http://www.douban.com/j/app/radio/people?app_name=radio_desktop_win&version=100&user_id=%s&expire=%s&token=%s&sid=&h=&channel=%s&type=n' % (user_id, expire, token, channel)
+    newr = requests.get(url, headers=headers)
+    newresponse = json.loads(newr.text)
+    print type(newresponse)
+    #print newresponse['song']
+    if newresponse['song'] == []:
+        print 'get songlist failed'
+    else:
+        songlist = []
+        for song in newresponse['song']:
+            songlist.append(
+                {
+                    'title': song['title'],
+                    'artist': song['artist'],
+                    'album': song['albumtitle'],
+                    'cover': song['picture'],
+                    'mp3': song['url'],
+                    'ogg': song['url']
+                }
+            )
+
+        return songlist
+
 
 
