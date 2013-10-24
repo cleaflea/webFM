@@ -1,124 +1,115 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <head>
-    <title>myfm</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="utf-8">
+<title>myfm</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
 
-    <link rel="stylesheet" type="text/css" href="/authstatic/css/bootstrap.css"/>
+<link rel="stylesheet" type="text/css" href="/authstatic/css/bootstrap.css"/>
 
-    <link rel="stylesheet" type="text/css" href="/authstatic/css/signin.css"/>
-    <link rel="stylesheet" type="text/css" href="/authstatic/css/base.css"/>
-    <link rel="shortcut icon" href="/authstatic/img/favicon.png" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="/authstatic/css/signin.css"/>
+<link rel="stylesheet" type="text/css" href="/authstatic/css/base.css"/>
+<link rel="shortcut icon" href="/authstatic/img/favicon.png" type="image/x-icon">
 
-    <script src="/authstatic/js/jquery-1.10.2.min.js"></script>
+<script src="/authstatic/js/jquery-1.10.2.min.js"></script>
 
-    <style>
-        div#captcha {
-            text-align: center;
+<style>
+    div#captcha {
+        text-align: center;
+    }
+
+    footer {
+        position: relative;
+        font-size: 12px;
+        color: #ccc;
+        text-shadow: 0 1px 2px #000;
+        text-align: center;
+    }
+
+    footer a {
+        color: #fff;
+        font-weight: bold;
+    }
+
+    footer a:hover {
+        text-decoration: underline;
+    }
+
+    h4#logging {
+        display: none;
+        color: #197D7D;
+    }
+
+    h4#wrongmsg {
+        display: none;
+        color: #FF0000;
+    }
+
+    h4#emptyemail {
+        display: none;
+        color: #FF0000;
+    }
+
+    h4#emptypassword {
+        display: none;
+        color: #FF0000;
+    }
+
+</style>
+
+<script>
+    function emailblur() {
+        var email = $('#id_username').val();
+        if (email == '') {
+            $('#emptyemail').show();
+            $('#emptypassword').hide();
+            $('#logging').hide();
+            $('#wrongmsg').hide();
+
+        } else {
+            $('#emptyemail').hide();
+            $('#emptypassword').hide();
+            $('#logging').hide();
+            $('#wrongmsg').hide();
+
         }
+    }
 
-        footer {
-            position: relative;
-            font-size: 12px;
-            color: #ccc;
-            text-shadow: 0 1px 2px #000;
-            text-align: center;
+    function passwordblur() {
+        var password = $('#id_password').val();
+        if (password == '') {
+            $('#emptyemail').hide();
+            $('#emptypassword').show();
+            $('#logging').hide();
+            $('#wrongmsg').hide();
+
+        } else {
+            $('#emptyemail').hide();
+            $('#emptypassword').hide();
+            $('#logging').hide();
+            $('#wrongmsg').hide();
+
         }
+    }
 
-        footer a {
-            color: #fff;
-            font-weight: bold;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-        
-        h4#logging {
-            display: none;
-            color: #197D7D;
-        }
-
-        h4#wrongemail {
-            display: none;
-            color: #FF0000;
-        }
-        h4#wrongpassword {
-            display: none;
-            color: #FF0000;
-        }
-
-        h4#emptyemail {
-            display: none;
-            color: #FF0000;
-        }
-
-        h4#emptypassword {
-            display: none;
-            color: #FF0000;
-        }
-
-    </style>
-
-    <script>
-        function emailblur(){
-            var email = $('#id_username').val();
-            if(email == ''){
-                $('#emptyemail').show();
-                $('#emptypassword').hide();
-                $('#logging').hide();
-                $('#wrongemail').hide();
-                $('#wrongpassword').hide();
-
-            }else{
-                $('#emptyemail').hide();
-                $('#emptypassword').hide();
-                $('#logging').hide();
-                $('#wrongemail').hide();
-                $('#wrongpassword').hide();
-
-            }
-        }
-
-        function passwordblur(){
-            var password = $('#id_password').val();
-            if(password == ''){
-                $('#emptyemail').hide();
-                $('#emptypassword').show();
-                $('#logging').hide();
-                $('#wrongemail').hide();
-                $('#wrongpassword').hide();
-
-            }else{
-                $('#emptyemail').hide();
-                $('#emptypassword').hide();
-                $('#logging').hide();
-                $('#wrongemail').hide();
-                $('#wrongpassword').hide();
-
-            }
-        }
-
-        function login() {
+    $(document).ready(function () {
+        $('#loginbtn').click(function () {
             var email = $('#id_username').val();
             var password = $('#id_password').val();
 
-            if(email == ''){
+            if (email == '') {
                 $('#emptyemail').show();
                 $('#emptypassword').hide();
                 $('#logging').hide();
-                $('#wrongemail').hide();
-                $('#wrongpassword').hide();
+                $('#wrongmsg').hide();
 
                 return;
             }
 
-            if(password == ''){
+            if (password == '') {
                 $('#emptyemail').hide();
                 $('#emptypassword').show();
                 $('#logging').hide();
-                $('#wrongemail').hide();
-                $('#wrongpassword').hide();
+                $('#wrongmsg').hide();
 
                 return;
             }
@@ -126,33 +117,84 @@
             $('#logging').show();
             $('#emptyemail').hide();
             $('#emptypassword').hide();
-            $('#wrongemail').hide();
-            $('#wrongpassword').hide();
-
+            $('#wrongmsg').hide();
 
             $.get("/auth/loginajax/", {
                 'email': email,
                 'password': password
             }).done(function (data) {
                         $('#logging').hide();
-                        if(data == 'wrong_email'){
-                            $('#wrongemail').show();
-                            $('#wrongpassword').hide();
-                        }
 
-                        if(data == 'wrong_password'){
-                            $('#wrongemail').hide();
-                            $('#wrongpassword').show();
-                        }
-
-                        if(data == 'success'){
+                        if (data == 'success') {
                             $('#loginform').submit();
+                        }else{
+                            $('#wrongmsg').html(data);
+                            $('#wrongmsg').show();
                         }
 
                     }
             );
+
+        });
+    });
+
+
+    function login(event) {
+        event.stopPropagation();
+
+        var email = $('#id_username').val();
+        var password = $('#id_password').val();
+
+        if (email == '') {
+            $('#emptyemail').show();
+            $('#emptypassword').hide();
+            $('#logging').hide();
+            $('#wrongemail').hide();
+            $('#wrongpassword').hide();
+
+            return;
         }
-    </script>
+
+        if (password == '') {
+            $('#emptyemail').hide();
+            $('#emptypassword').show();
+            $('#logging').hide();
+            $('#wrongemail').hide();
+            $('#wrongpassword').hide();
+
+            return;
+        }
+
+        $('#logging').show();
+        $('#emptyemail').hide();
+        $('#emptypassword').hide();
+        $('#wrongemail').hide();
+        $('#wrongpassword').hide();
+
+
+        $.get("/auth/loginajax/", {
+            'email': email,
+            'password': password
+        }).done(function (data) {
+                    $('#logging').hide();
+                    if (data == 'wrong_email') {
+                        $('#wrongemail').show();
+                        $('#wrongpassword').hide();
+                    }
+
+                    if (data == 'wrong_password') {
+                        $('#wrongemail').hide();
+                        $('#wrongpassword').show();
+                    }
+
+                    if (data == 'success') {
+                        $('#loginform').submit();
+                    }
+
+                }
+        );
+    }
+</script>
 
 </head>
 <body>
@@ -174,9 +216,7 @@
 
         <h4 class="text-center" id="logging">logging...</h4>
 
-        <h4 class="text-center" id="wrongemail">email is wrong</h4>
-
-        <h4 class="text-center" id="wrongpassword">password is wrong</h4>
+        <h4 class="text-center" id="wrongmsg"></h4>
 
         <h4 class="text-center" id="emptyemail">please input email</h4>
         <h4 class="text-center" id="emptypassword">please input password</h4>
@@ -186,12 +226,12 @@
 
 
         <input id="id_password" name="password" type="password" class="form-control" placeholder="Password"
-                onblur="passwordblur()">
+               onblur="passwordblur()">
 
-        <input class="btn btn-lg btn-primary btn-block" onclick="login()" value="Login"/>
-        <!--<button class="btn btn-lg btn-primary btn-block" onclick="login()">Login</button>-->
-
+        <!--<input class="btn btn-lg btn-primary btn-block" onclick="login()" value="Login"/>-->
+        <p class="btn btn-lg btn-primary btn-block" id="loginbtn">Login</p>
     </form>
+
 
     </br>
     </br>
