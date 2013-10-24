@@ -124,6 +124,8 @@ def play(channel='0', opener=None):
 
 import requests
 
+from django.http import HttpResponseRedirect
+
 def getcaptcha8(email, password):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN) AppleWebKit/533.3 (KHTML, like Gecko) radio Safari/533.3'
@@ -141,13 +143,17 @@ def getcaptcha8(email, password):
     # print type(r.text)
     result = json.loads(r.text)
     print type(result)
-    user_id = result['user_id']
-    expire = result['expire']
-    token = result['token']
-    print user_id
-    print expire
-    print token
-    channel = '-3'
+
+    try :
+        user_id = result['user_id']
+        expire = result['expire']
+        token = result['token']
+        print user_id
+        print expire
+        print token
+        channel = '-3'
+    except:
+        print 'result======>' + str(result['err'])
 
     url = 'http://www.douban.com/j/app/radio/people?app_name=radio_desktop_win&version=100&user_id=%s&expire=%s&token=%s&sid=&h=&channel=%s&type=n' % (user_id, expire, token, channel)
     newr = requests.get(url, headers=headers)

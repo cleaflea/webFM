@@ -10,6 +10,8 @@
     <link rel="stylesheet" type="text/css" href="/authstatic/css/base.css"/>
     <link rel="shortcut icon" href="/authstatic/img/favicon.png" type="image/x-icon">
 
+    <script src="/authstatic/js/jquery-1.10.2.min.js"></script>
+
     <style>
         div#captcha {
             text-align: center;
@@ -31,8 +33,112 @@
         footer a:hover {
             text-decoration: underline;
         }
+        
+        h4#logging {
+            display: none;
+            color: #197D7D;
+        }
+
+        h4#wrongemail {
+            display: none;
+            color: #FF0000;
+        }
+        h4#wrongpassword {
+            display: none;
+            color: #FF0000;
+        }
+
+        h4#emptyemail {
+            display: none;
+            color: #FF0000;
+        }
+
+        h4#emptypassword {
+            display: none;
+            color: #FF0000;
+        }
 
     </style>
+
+    <script>
+        function emailblur(){
+            var email = $('#id_username').val();
+            if(email == ''){
+                $('#emptyemail').show();
+                $('#emptypassword').hide();
+                $('#logging').hide();
+                $('#wrongemail').hide();
+                $('#wrongpassword').hide();
+
+            }
+        }
+
+        function passwordblur(){
+            var password = $('#id_password').val();
+            if(password == ''){
+                $('#emptyemail').hide();
+                $('#emptypassword').show();
+                $('#logging').hide();
+                $('#wrongemail').hide();
+                $('#wrongpassword').hide();
+
+            }
+        }
+
+        function login() {
+            var email = $('#id_username').val();
+            var password = $('#id_password').val();
+
+            if(email == ''){
+                $('#emptyemail').show();
+                $('#emptypassword').hide();
+                $('#logging').hide();
+                $('#wrongemail').hide();
+                $('#wrongpassword').hide();
+
+                return;
+            }
+
+            if(password == ''){
+                $('#emptyemail').hide();
+                $('#emptypassword').show();
+                $('#logging').hide();
+                $('#wrongemail').hide();
+                $('#wrongpassword').hide();
+
+                return;
+            }
+
+            $('#logging').show();
+            $('#emptyemail').hide();
+            $('#emptypassword').hide();
+            $('#wrongemail').hide();
+            $('#wrongpassword').hide();
+
+
+            $.get("/auth/loginajax/", {
+                'email': email,
+                'password': password
+            }).done(function (data) {
+                        $('#logging').hide();
+                        if(data == 'wrong_email'){
+                            $('#wrongemail').show();
+                            $('#wrongpassword').hide();
+                        }
+
+                        if(data == 'wrong_password'){
+                            $('#wrongemail').hide();
+                            $('#wrongpassword').show();
+                        }
+
+                        if(data == 'success'){
+                            $('#loginform').submit();
+                        }
+
+                    }
+            );
+        }
+    </script>
 
 </head>
 <body>
@@ -48,18 +154,28 @@
     </br>
     </br>
 
-    <form action="/auth/index/" class="form-signin" method="post">
+    <form action="/auth/index/" class="form-signin" method="post" id="loginform">
         {% csrf_token %}
         <h3 class="form-signin-heading text-center">Please log in use Douban auth</h3>
 
+        <h4 class="text-center" id="logging">logging...</h4>
+
+        <h4 class="text-center" id="wrongemail">email is wrong</h4>
+
+        <h4 class="text-center" id="wrongpassword">password is wrong</h4>
+
+        <h4 class="text-center" id="emptyemail">please input email</h4>
+        <h4 class="text-center" id="emptypassword">please input password</h4>
+
         <input id="id_username" name="email" type="text" class="form-control" placeholder="email/phonenumber"
-               autofocus>
+               autofocus onblur="emailblur()">
+
 
         <input id="id_password" name="password" type="password" class="form-control" placeholder="Password"
-                >
+                onblur="passwordblur()">
 
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
-
+        <input class="btn btn-lg btn-primary btn-block" onclick="login()" value="Login"/>
+        <!--<button class="btn btn-lg btn-primary btn-block" onclick="login()">Login</button>-->
 
     </form>
 

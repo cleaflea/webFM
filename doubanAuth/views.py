@@ -14,6 +14,7 @@ from cookielib import CookieJar
 from django.views.decorators.csrf import csrf_exempt
 import time
 import pickle
+from douban.DoubanObj import Douban
 
 #globals()
 
@@ -97,26 +98,31 @@ def login_user(request):
 
 def nocaptcha_login_user(request):
     if request.method == 'POST':
-        email = request.POST.get('email', '')
-        password = request.POST.get('password', '')
-
-        print 'username=>' + str(email)
-        print 'password=>' + str(password)
-
-        playlist = doubanUtil.getcaptcha8(email=email, password=password)
-        picklePath = os.path.join(os.path.dirname(__file__), '..', 'picklefile').replace('\\', '/')
-        with open(str(picklePath) + '/playlist.pickle', 'wb') as listSaveData:
-            pickle.dump(playlist, listSaveData)
-
-
-        #time.sleep(300)
-
         return HttpResponseRedirect('/douban/index/')
-        #return HttpResponseRedirect('/auth/test/')
-
     else:
         return render_to_response('nocaptcha_login.html', {}, context_instance=RequestContext(request))
 
+def loginAjax(request):
+    email = request.GET['email']
+    password = request.GET['password']
+    channel = '-3'
+
+    print email
+    print password
+
+    douban = Douban()
+    loginresult = douban.login(email=email, password=password, channel=channel)
+    print loginresult
+    ajaxReturn = json.dumps(loginresult)
+    return HttpResponse(ajaxReturn, mimetype='application/json')
+
+def getSongAjax(request):
+    picklePath = os.path.join(os.path.dirname(__file__), '..', 'picklefile').replace('\\', '/')
+    with open(str(picklePath) + '/playlist.pickle', 'rb') as listSaveData:
+        playlist = pickle.load(listSaveData)
+
+    songlist = json.dumps(playlist)
+    return HttpResponse(songlist, mimetype='application/json')
 
 
 def test(request):
@@ -124,11 +130,11 @@ def test(request):
     with open(str(picklePath) + '/playlist.pickle', 'rb') as listSaveData:
         playlist = pickle.load(listSaveData)
 
-    print type(playlist)
-    print playlist
+    #print type(playlist)
+    #print playlist
     songlist = json.dumps(playlist)
-    print type(songlist)
-    print songlist
+    #print type(songlist)
+    #print songlist
     #return HttpResponse('hello cleantha')
     #print request.GET['getsong']
     return HttpResponse(songlist, mimetype='application/json')
